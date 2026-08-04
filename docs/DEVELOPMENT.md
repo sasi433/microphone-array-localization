@@ -88,6 +88,27 @@ Install and enable the official **MATLAB** extension published by MathWorks. Thi
 
 Do not change the system or user `PATH` solely for this project without explicit approval. If automatic discovery fails, configure the official extension to use the verified executable path shown above.
 
+## Codex-assisted local workflow
+
+Development proceeds one planned commit at a time. Start from a clean working tree on the intended branch and inspect related files before editing. Keep each commit limited to one coherent roadmap item.
+
+Use this verified loop:
+
+```text
+edit -> focused tests -> full tests -> diff review -> commit -> push
+```
+
+In detail:
+
+1. **Edit:** implement the smallest complete change without modifying unrelated files.
+2. **Focused tests:** run the most relevant test file or a documented static check. Preserve exact failures, correct the root cause, and rerun the same check.
+3. **Full tests:** run `matlab -batch "run_tests"` for implementation changes. Confirm that tests were discovered, every required test passed, and MATLAB exited successfully.
+4. **Diff review:** inspect `git diff`, `git diff --check`, the staged file list, and `git diff --cached`. Confirm that no generated results, credentials, temporary files, or unrelated changes are staged.
+5. **Commit:** use the planned Conventional Commit-style message and record the resulting commit SHA.
+6. **Push:** push the commit to the intended upstream branch, then verify that the working tree is clean and the local branch is neither ahead of nor behind its upstream.
+
+Do not move to the next planned commit until all six stages succeed. Report the branch, tests and checks, commit SHA, push result, final working-tree state, and next planned commit after every completed change.
+
 ## Troubleshooting
 
 ### `matlab` is not recognized

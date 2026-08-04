@@ -120,6 +120,31 @@ Do not combine unrelated daily-plan tasks into one commit.
 
 Do not push implementation changes when executable tests fail. When MATLAB is unavailable, state that limitation before committing and follow the user-approved validation workflow.
 
+### Codex-assisted commit workflow
+
+Complete planned work one coherent commit at a time. Do not begin the next planned commit until the current commit has been implemented, validated, reviewed, committed, pushed, and confirmed on the intended upstream branch.
+
+For each commit:
+
+1. Confirm that the working tree is clean and the current branch is correct.
+2. Inspect the related files before editing.
+3. State the intended commit scope and avoid unrelated changes.
+4. Implement the smallest complete change.
+5. Run the relevant focused MATLAB tests or documented static checks.
+6. Fix failures at their root cause and rerun the focused checks.
+7. Run the accumulated complete MATLAB suite for implementation changes.
+8. Review the unstaged and staged diffs and check for generated or sensitive files.
+9. Commit with the planned Conventional Commit-style message.
+10. Push to the correct upstream branch and confirm that local and remote histories match.
+
+The verified loop is:
+
+```text
+edit -> focused tests -> full tests -> diff review -> commit -> push
+```
+
+Report the branch, commit SHA, push result, commands run, outcomes, working-tree status, and next planned commit. Never claim that a MATLAB test passed unless MATLAB executed it successfully.
+
 ## Generated and sensitive files
 
 Do not commit:
