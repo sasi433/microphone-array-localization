@@ -1,0 +1,25 @@
+# MATLAB autosave and backup files
+*.asv
+*.autosave
+*.m~
+
+# MATLAB and Simulink generated files
+slprj/
+codegen/
+*.slxc
+
+# Test, coverage, and generated output
+coverage/
+test-results/
+results/*
+!results/.gitkeep
+
+# Temporary files and logs
+*.tmp
+*.log
+*.bak
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini

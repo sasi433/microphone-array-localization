@@ -1,0 +1,25 @@
+* text=auto
+
+# Text-based project files
+*.m text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# MATLAB and generated binary formats
+*.mat binary
+*.mlx binary
+*.fig binary
+*.mlapp binary
+*.mlappinstall binary
+*.slx binary
+*.mdl binary
+
+# Documentation and image assets
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
