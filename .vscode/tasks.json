@@ -1,0 +1,83 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "MATLAB: Run All Tests",
+            "type": "process",
+            "command": "C:\\Program Files\\MATLAB\\R2026a\\bin\\matlab.exe",
+            "args": [
+                "-batch",
+                "run_tests"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "MATLAB: Run Focused Test",
+            "type": "process",
+            "command": "C:\\Program Files\\MATLAB\\R2026a\\bin\\matlab.exe",
+            "args": [
+                "-batch",
+                "setupProject; results = runtests('${input:focusedTestFile}', InvalidFileFoundAction='error'); assert(~isempty(results), 'No MATLAB tests were discovered'); assert(all([results.Passed]), 'Focused MATLAB tests failed');"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
+            "label": "MATLAB: Run Basic Example",
+            "type": "process",
+            "command": "C:\\Program Files\\MATLAB\\R2026a\\bin\\matlab.exe",
+            "args": [
+                "-batch",
+                "setupProject; exampleFile = fullfile('examples', 'runBasicLMSExample.m'); assert(isfile(exampleFile), 'Basic example has not been implemented yet'); run(exampleFile);"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "MATLAB: Run Code Analyzer",
+            "type": "process",
+            "command": "C:\\Program Files\\MATLAB\\R2026a\\bin\\matlab.exe",
+            "args": [
+                "-batch",
+                "setupProject; files = [dir(fullfile('src', '**', '*.m')); dir(fullfile('tests', '**', '*.m')); dir(fullfile('examples', '**', '*.m')); dir('*.m')]; issueCount = 0; for fileIndex = 1:numel(files), fileName = fullfile(files(fileIndex).folder, files(fileIndex).name); issues = checkcode(fileName, '-id'); issueCount = issueCount + numel(issues); if ~isempty(issues), fprintf('Code Analyzer findings for %s:\\n', fileName); disp(struct2table(issues)); end, end; assert(issueCount == 0, 'MATLAB Code Analyzer reported %d finding(s)', issueCount); fprintf('MATLAB Code Analyzer passed for %d file(s).\\n', numel(files));"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "MATLAB: Verify Release and Toolboxes",
+            "type": "process",
+            "command": "C:\\Program Files\\MATLAB\\R2026a\\bin\\matlab.exe",
+            "args": [
+                "-batch",
+                "disp(version); disp(matlabroot); disp(struct2table(ver)); fprintf('phasez: %d\\n', exist('phasez', 'file')); fprintf('lsqnonlin: %d\\n', exist('lsqnonlin', 'file')); assert(exist('phasez', 'file') == 2, 'Signal Processing Toolbox function phasez is unavailable'); assert(exist('lsqnonlin', 'file') == 2, 'Optimization Toolbox function lsqnonlin is unavailable');"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "focusedTestFile",
+            "type": "promptString",
+            "description": "Repository-relative MATLAB test file",
+            "default": "tests/testProjectSetup.m"
+        }
+    ]
+}
