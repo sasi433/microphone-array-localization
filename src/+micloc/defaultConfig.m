@@ -40,4 +40,5 @@ config.localization.optimalityTolerance = 1e-10;
 config.localization.solverDisplay = 'off';
 
 config.plot.enabled = true;
+config = micloc.validateConfig(config);
 end

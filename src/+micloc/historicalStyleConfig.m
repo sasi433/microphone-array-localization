@@ -30,4 +30,5 @@ config.lms.bulkDelaySamples = 48;
 config.localization.initialGuessMeters = [0.5, 1.0];
 config.localization.lowerBoundsMeters = [-10, 0];
 config.localization.upperBoundsMeters = [10, 10];
+config = micloc.validateConfig(config);
 end
