@@ -18,6 +18,11 @@ config.sourcePositionMeters = [1.2, 1.8];
 config.referenceMicrophoneIndex = 1;
 config.delayMethod = 'fractional';
 
+config.sourceSignal.type = 'chirp';
+config.sourceSignal.startFrequencyHz = 300;
+config.sourceSignal.endFrequencyHz = 8000;
+config.sourceSignal.initialPhaseRadians = 0;
+
 config.noise.enabled = true;
 config.noise.snrDb = 30;
 
