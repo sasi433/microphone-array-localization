@@ -21,6 +21,9 @@ config.sourcePositionMeters = [1.5, 2.0];
 config.referenceMicrophoneIndex = 1;
 config.delayMethod = 'integer';
 
+config.sourceSignal.type = 'gaussian-noise';
+config.sourceSignal.amplitude = 1;
+
 config.noise.enabled = false;
 config.noise.snrDb = 30;
 
