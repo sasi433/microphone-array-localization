@@ -27,9 +27,9 @@ config.sourceSignal.amplitude = 1;
 config.noise.enabled = false;
 config.noise.snrDb = 30;
 
-config.lms.filterLength = 64;
+config.lms.filterLength = 96;
 config.lms.stepSize = 0.01;
-config.lms.bulkDelaySamples = 32;
+config.lms.bulkDelaySamples = 48;
 config.lms.storeCoefficientHistory = false;
 
 config.localization.initialGuessMeters = [0, 1];
