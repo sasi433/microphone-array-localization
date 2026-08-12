@@ -3,9 +3,10 @@ function result = runLocalizationSimulation(config)
 %   RESULT = MICLOC.RUNLOCALIZATIONSIMULATION(CONFIG) validates CONFIG and
 %   executes source generation, direct-path propagation, optional noise,
 %   pairwise LMS adaptation, phase-slope TDOA estimation, bounded source
-%   localization, and accuracy calculation. RESULT initially summarizes
-%   the actual and estimated coordinates, localization error, solver state,
-%   estimated TDOAs, and stage diagnostics.
+%   localization, and accuracy calculation. RESULT contains the validated
+%   configuration and seed, geometry, generated and received signals, true
+%   arrival times and TDOAs, estimated TDOAs and errors, source coordinates,
+%   accuracy metrics, solver diagnostics, and per-pair LMS diagnostics.
 
 config = micloc.validateConfig(config);
 sampleRateHz = config.sampleRateHz;
@@ -82,17 +83,34 @@ metrics = micloc.calculateLocalizationMetrics( ...
     config.sourcePositionMeters, estimatedPositionMeters, ...
     solverDiagnostics);
 
+trueTDOAsSeconds = arrivalTimesSeconds - arrivalTimesSeconds(referenceIndex);
+
+result.config = config;
+result.randomSeed = config.randomSeed;
+result.microphonePositionsMeters = config.microphonePositionsMeters;
+result.sourceSignal = sourceSignal;
+result.sourceTimeSeconds = timeSeconds;
+result.cleanMicrophoneSignals = cleanMicrophoneSignals;
+result.microphoneSignals = microphoneSignals;
+result.noiseSamples = noise;
 result.actualPositionMeters = config.sourcePositionMeters;
 result.estimatedPositionMeters = estimatedPositionMeters;
+result.trueArrivalTimesSeconds = arrivalTimesSeconds;
+result.trueTDOAsSeconds = trueTDOAsSeconds;
+result.appliedDelaySamples = appliedDelaySamples;
+result.appliedTDOAsSamples = appliedTDOAsSamples;
+result.estimatedTDOAsSamples = estimatedTDOAsSamples;
+result.estimatedTDOAsSeconds = estimatedTDOAsSeconds;
+result.tdoaErrorsSeconds = estimatedTDOAsSeconds - trueTDOAsSeconds;
+result.metrics = metrics;
 result.localizationErrorMeters = metrics.localizationErrorMeters;
 result.solverSucceeded = solverDiagnostics.solverSucceeded;
-result.estimatedTDOAsSeconds = estimatedTDOAsSeconds;
-result.diagnostics.sourceTimeSeconds = timeSeconds;
 result.diagnostics.propagation = propagationDiagnostics;
 result.diagnostics.noise = noiseDiagnostics;
-result.diagnostics.noiseSamples = noise;
 result.diagnostics.pairs = pairDiagnostics;
 result.diagnostics.solver = solverDiagnostics;
+result.solverDiagnostics = solverDiagnostics;
+result.lmsDiagnostics = pairDiagnostics;
 end
 
 function validateLMSDelayRange(tdoasSamples, lmsSettings)
