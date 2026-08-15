@@ -24,15 +24,22 @@ clean-room rules in [`PROVENANCE.md`](PROVENANCE.md).
    Techniques and Applications*. Springer, 2001.
    [DOI: 10.1007/978-3-662-04619-7](https://doi.org/10.1007/978-3-662-04619-7).
 
+## Time-delay estimation
+
+6. C. H. Knapp and G. C. Carter, "The Generalized Correlation Method for
+   Estimation of Time Delay," *IEEE Transactions on Acoustics, Speech, and
+   Signal Processing*, vol. 24, no. 4, pp. 320-327, August 1976.
+   [DOI: 10.1109/TASSP.1976.1162830](https://doi.org/10.1109/TASSP.1976.1162830).
+
 ## MATLAB product documentation
 
-6. MathWorks, [`lsqnonlin`](https://www.mathworks.com/help/optim/ug/lsqnonlin.html),
+7. MathWorks, [`lsqnonlin`](https://www.mathworks.com/help/optim/ug/lsqnonlin.html),
    Optimization Toolbox documentation.
-7. MathWorks, [`freqz`](https://www.mathworks.com/help/signal/ref/freqz.html),
+8. MathWorks, [`freqz`](https://www.mathworks.com/help/signal/ref/freqz.html),
    Signal Processing Toolbox documentation.
-8. MathWorks, [`RandStream`](https://www.mathworks.com/help/matlab/ref/randstream.html),
+9. MathWorks, [`RandStream`](https://www.mathworks.com/help/matlab/ref/randstream.html),
    MATLAB documentation.
-9. MathWorks, [MATLAB unit testing framework](https://www.mathworks.com/help/matlab/matlab-unit-test-framework.html).
+10. MathWorks, [MATLAB unit testing framework](https://www.mathworks.com/help/matlab/matlab-unit-test-framework.html).
 
 ## Project-specific design records
 
@@ -42,6 +49,8 @@ clean-room rules in [`PROVENANCE.md`](PROVENANCE.md).
   phase-fit, and bulk-delay conventions.
 - [`FRACTIONAL_DELAY_DESIGN.md`](FRACTIONAL_DELAY_DESIGN.md) documents the
   windowed-sinc choice and group-delay compensation.
+- [`GCC_PHAT_DESIGN.md`](GCC_PHAT_DESIGN.md) defines the GCC-PHAT spectrum,
+  sign, lag-bound, epsilon, and interpolation conventions.
 - [`GEOMETRY.md`](GEOMETRY.md) documents reference microphones and mirror
   ambiguity.
 - [`SIMULATION_ASSUMPTIONS.md`](SIMULATION_ASSUMPTIONS.md) records the
