@@ -1,5 +1,6 @@
 function [relativeDelaySamples, diagnostics] = ...
-        estimateDelayGCCPHAT(comparisonSignal, referenceSignal)
+        estimateDelayGCCPHAT(comparisonSignal, referenceSignal, ...
+        maximumLagSamples)
 %ESTIMATEDELAYGCCPHAT Estimate integer relative delay using GCC-PHAT.
 %   DELAYSAMPLES = MICLOC.ESTIMATEDELAYGCCPHAT(COMPARISON, REFERENCE)
 %   computes a phase-transform-weighted generalized cross-correlation using
@@ -7,8 +8,14 @@ function [relativeDelaySamples, diagnostics] = ...
 %   arrives later than REFERENCE. Equal-length, finite, real signal vectors
 %   containing at least two samples are required.
 %
-%   The FFT is zero-padded for linear correlation. The initial estimator
-%   searches every feasible signed lag and returns the unique largest
+%   DELAYSAMPLES = MICLOC.ESTIMATEDELAYGCCPHAT(COMPARISON, REFERENCE,
+%   MAXIMUMLAGSAMPLES) limits the signed peak search to the supplied
+%   nonnegative integer bound. Use MICLOC.CALCULATEMAXIMUMTDOASAMPLES to
+%   derive physical pairwise bounds from microphone geometry. A bound wider
+%   than the finite-signal range is capped and reported in diagnostics.
+%
+%   The FFT is zero-padded for linear correlation. The estimator searches
+%   the selected feasible signed lags and returns the unique largest
 %   correlation magnitude at integer-sample resolution. Zero cross-spectra
 %   and exactly tied peaks are rejected as unidentifiable.
 %
@@ -17,7 +24,7 @@ function [relativeDelaySamples, diagnostics] = ...
 %   implementation does not call the Phased Array System Toolbox GCCPHAT
 %   function.
 
-narginchk(2, 2);
+narginchk(2, 3);
 validateattributes(comparisonSignal, {'numeric'}, ...
     {'real', 'vector', 'finite', 'nonempty'}, mfilename, ...
     'comparisonSignal');
@@ -33,6 +40,19 @@ if sampleCount < 2
     error('micloc:estimateDelayGCCPHAT:SignalTooShort', ...
         'At least two signal samples are required.');
 end
+fullMaximumLagSamples = sampleCount - 1;
+if nargin < 3 || isempty(maximumLagSamples)
+    requestedMaximumLagSamples = fullMaximumLagSamples;
+    lagConstraintApplied = false;
+else
+    validateattributes(maximumLagSamples, {'numeric'}, ...
+        {'real', 'scalar', 'finite', 'integer', 'nonnegative'}, ...
+        mfilename, 'maximumLagSamples');
+    requestedMaximumLagSamples = double(maximumLagSamples);
+    lagConstraintApplied = true;
+end
+maximumLagSamples = min( ...
+    requestedMaximumLagSamples, fullMaximumLagSamples);
 
 comparisonColumn = double(comparisonSignal(:));
 referenceColumn = double(referenceSignal(:));
@@ -58,7 +78,6 @@ phatCrossSpectrum = crossSpectrum ...
 gccPhatCircular = real(ifft(phatCrossSpectrum));
 gccPhat = fftshift(gccPhatCircular);
 lagsSamples = (-fftLength / 2:fftLength / 2 - 1).';
-maximumLagSamples = sampleCount - 1;
 searchMask = abs(lagsSamples) <= maximumLagSamples;
 searchedCorrelation = gccPhat(searchMask);
 searchedLagsSamples = lagsSamples(searchMask);
@@ -74,7 +93,11 @@ peakIndex = peakIndices(1);
 relativeDelaySamples = searchedLagsSamples(peakIndex);
 remainingMagnitudes = searchedMagnitudes;
 remainingMagnitudes(peakIndex) = [];
-secondPeakMagnitude = max(remainingMagnitudes);
+if isempty(remainingMagnitudes)
+    secondPeakMagnitude = 0;
+else
+    secondPeakMagnitude = max(remainingMagnitudes);
+end
 if secondPeakMagnitude == 0
     peakToSecondPeakRatio = Inf;
 else
@@ -86,7 +109,9 @@ diagnostics.sampleCount = sampleCount;
 diagnostics.fftLength = fftLength;
 diagnostics.linearCorrelationLength = linearCorrelationLength;
 diagnostics.normalizationFloor = normalizationFloor;
+diagnostics.requestedMaximumLagSamples = requestedMaximumLagSamples;
 diagnostics.maximumLagSamples = maximumLagSamples;
+diagnostics.lagConstraintApplied = lagConstraintApplied;
 diagnostics.lagsSamples = lagsSamples;
 diagnostics.correlation = gccPhat;
 diagnostics.searchMask = searchMask;
