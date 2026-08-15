@@ -1,7 +1,7 @@
 function [relativeDelaySamples, diagnostics] = ...
         estimateDelayGCCPHAT(comparisonSignal, referenceSignal, ...
         maximumLagSamples)
-%ESTIMATEDELAYGCCPHAT Estimate integer relative delay using GCC-PHAT.
+%ESTIMATEDELAYGCCPHAT Estimate relative delay using GCC-PHAT.
 %   DELAYSAMPLES = MICLOC.ESTIMATEDELAYGCCPHAT(COMPARISON, REFERENCE)
 %   computes a phase-transform-weighted generalized cross-correlation using
 %   independently written FFT operations. Positive delay means COMPARISON
@@ -15,9 +15,12 @@ function [relativeDelaySamples, diagnostics] = ...
 %   than the finite-signal range is capped and reported in diagnostics.
 %
 %   The FFT is zero-padded for linear correlation. The estimator searches
-%   the selected feasible signed lags and returns the unique largest
-%   correlation magnitude at integer-sample resolution. Zero cross-spectra
-%   and exactly tied peaks are rejected as unidentifiable.
+%   the selected feasible signed lags and selects the unique largest
+%   correlation magnitude. A three-point quadratic fit around an interior
+%   peak provides a sub-sample estimate. The integer estimate is retained
+%   when interpolation is numerically unsafe or the peak is on the search
+%   boundary. Zero cross-spectra and exactly tied peaks are rejected as
+%   unidentifiable.
 %
 %   [DELAYSAMPLES, DIAGNOSTICS] also returns the signed lag axis, GCC-PHAT
 %   sequence, peak statistics, FFT length, and normalization floor. This
@@ -90,7 +93,10 @@ if numel(peakIndices) ~= 1
 end
 
 peakIndex = peakIndices(1);
-relativeDelaySamples = searchedLagsSamples(peakIndex);
+integerDelaySamples = searchedLagsSamples(peakIndex);
+[fractionalOffsetSamples, interpolationApplied, interpolationReason] = ...
+    interpolatePeak(searchedMagnitudes, peakIndex);
+relativeDelaySamples = integerDelaySamples + fractionalOffsetSamples;
 remainingMagnitudes = searchedMagnitudes;
 remainingMagnitudes(peakIndex) = [];
 if isempty(remainingMagnitudes)
@@ -122,9 +128,45 @@ diagnostics.peakCorrelation = searchedCorrelation(peakIndex);
 diagnostics.peakMagnitude = peakMagnitude;
 diagnostics.secondPeakMagnitude = secondPeakMagnitude;
 diagnostics.peakToSecondPeakRatio = peakToSecondPeakRatio;
-diagnostics.integerDelaySamples = relativeDelaySamples;
+diagnostics.integerDelaySamples = integerDelaySamples;
+diagnostics.fractionalOffsetSamples = fractionalOffsetSamples;
+diagnostics.subsampleInterpolationApplied = interpolationApplied;
+diagnostics.subsampleInterpolationReason = interpolationReason;
 diagnostics.relativeDelaySamples = relativeDelaySamples;
-diagnostics.resolutionSamples = 1;
+diagnostics.integerLagGridSpacingSamples = 1;
 diagnostics.tdoaSignConvention = ...
     'comparison arrival minus reference arrival';
+end
+
+function [offsetSamples, applied, reason] = interpolatePeak( ...
+        correlationMagnitudes, peakIndex)
+offsetSamples = 0;
+applied = false;
+if peakIndex == 1 || peakIndex == numel(correlationMagnitudes)
+    reason = 'search-boundary';
+    return
+end
+
+leftMagnitude = correlationMagnitudes(peakIndex - 1);
+peakMagnitude = correlationMagnitudes(peakIndex);
+rightMagnitude = correlationMagnitudes(peakIndex + 1);
+curvatureDenominator = ...
+    leftMagnitude - 2 * peakMagnitude + rightMagnitude;
+curvatureTolerance = eps(max( ...
+    [leftMagnitude, peakMagnitude, rightMagnitude]));
+if curvatureDenominator >= -curvatureTolerance
+    reason = 'flat-or-nonconcave-peak';
+    return
+end
+
+candidateOffset = 0.5 * (leftMagnitude - rightMagnitude) ...
+    / curvatureDenominator;
+if ~isfinite(candidateOffset) || abs(candidateOffset) > 1
+    reason = 'offset-outside-neighborhood';
+    return
+end
+
+offsetSamples = candidateOffset;
+applied = true;
+reason = 'applied';
 end
