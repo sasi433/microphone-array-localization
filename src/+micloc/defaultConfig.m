@@ -20,6 +20,7 @@ config.microphonePositionsMeters = [ ...
 config.sourcePositionMeters = [1.5, 2.0];
 config.referenceMicrophoneIndex = 1;
 config.delayMethod = 'integer';
+config.tdoaEstimator = 'lms-phase';
 
 config.sourceSignal.type = 'gaussian-noise';
 config.sourceSignal.amplitude = 1;
