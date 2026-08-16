@@ -3,10 +3,11 @@
 A clean-room MATLAB reconstruction and modernization of an academic
 sound-source localization simulation.
 
-> **Status:** V0.1 implementation complete. One stationary synthetic source
-> is localized in a two-dimensional, synchronized, direct-path simulation
-> using independently implemented LMS adaptive filtering and phase-slope
-> TDOA estimation.
+> **Status:** V0.1 is released, and the post-V0.1 estimator-comparison stage
+> is implemented. One stationary synthetic source is localized in a
+> two-dimensional, synchronized, direct-path simulation using selectable
+> LMS peak, LMS phase-slope, or independently implemented GCC-PHAT TDOA
+> estimation.
 
 This is a focused reproducible signal-processing project. It is not an AI
 system, production acoustic-localization product, real-time audio system, or
@@ -108,33 +109,39 @@ distance and direct-path arrival times
 integer or fractional microphone delays --> optional measured-SNR noise
         |
         v
-reference-pair causal alignment
+selected TDOA estimator
         |
-        v
-clean-room LMS FIR identification
+        +--> causal alignment --> clean-room LMS FIR --> peak or phase slope
         |
-        v
-unwrapped phase-slope TDOA estimation
+        +--> geometry-bounded GCC-PHAT correlation peak
         |
         v
 bounded nonlinear coordinate estimation
         |
         v
-coordinates + TDOA errors + metrics + LMS/solver diagnostics
+coordinates + TDOA errors + metrics + method/solver diagnostics
 ```
 
 The reusable entry point is:
 
 ```matlab
 config = micloc.defaultConfig();
+config.tdoaEstimator = 'lms-phase'; % lms-peak | lms-phase | gcc-phat
 result = micloc.runLocalizationSimulation(config);
 ```
 
 The structured result includes configuration and seed, generated and
 received signals, microphone coordinates, true arrivals/TDOAs, estimated
 TDOAs and errors, actual and estimated source coordinates, localization
-metrics, learned pairwise filters, LMS histories, phase-fit quality, and
-solver diagnostics.
+metrics, method-specific pair diagnostics, learned LMS filters and histories
+when applicable, GCC-PHAT correlations when selected, and solver diagnostics.
+
+Compare every estimator on exactly identical generated microphone signals:
+
+```matlab
+comparison = micloc.compareTDOAEstimators(config);
+disp(comparison.delayMetricsTable);
+```
 
 ## Mathematical overview
 
@@ -160,10 +167,17 @@ angular frequency; negative slope estimates delay in samples. Every
 non-reference TDOA contributes to the bounded nonlinear localization
 residual vector.
 
+For GCC-PHAT, the comparison/reference cross-spectrum is normalized by its
+magnitude with epsilon protection, transformed back to a signed correlation
+lag axis, restricted by microphone separation and sound speed, and refined
+locally with quadratic peak interpolation.
+
 See [methodology](docs/METHODOLOGY.md),
 [LMS design](docs/LMS_DESIGN.md),
 [delay conventions](docs/LMS_DELAY_ESTIMATION.md), and
-[fractional-delay design](docs/FRACTIONAL_DELAY_DESIGN.md).
+[fractional-delay design](docs/FRACTIONAL_DELAY_DESIGN.md). The fair
+identical-signal workflow and interpretation limits are documented in
+[LMS versus GCC-PHAT comparison](docs/ESTIMATOR_COMPARISON.md).
 
 ## Repository structure
 
@@ -182,7 +196,8 @@ V0.1 models one stationary synthetic source, synchronized microphones,
 known two-dimensional geometry, known sound speed, and direct propagation.
 It supports configurable linear or arbitrary valid non-collinear arrays,
 integer/fractional delays, optional seeded Gaussian noise, and visible
-solver failures.
+solver failures. TDOA estimation is selectable between LMS peak, LMS phase
+slope, and clean-room GCC-PHAT.
 
 It does not model reflections, reverberation, hardware clocks, microphone
 responses, calibration error, multiple sources, motion, 3D localization,

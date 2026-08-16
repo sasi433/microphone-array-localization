@@ -51,6 +51,8 @@ clean-room rules in [`PROVENANCE.md`](PROVENANCE.md).
   windowed-sinc choice and group-delay compensation.
 - [`GCC_PHAT_DESIGN.md`](GCC_PHAT_DESIGN.md) defines the GCC-PHAT spectrum,
   sign, lag-bound, epsilon, and interpolation conventions.
+- [`ESTIMATOR_COMPARISON.md`](ESTIMATOR_COMPARISON.md) defines the
+  identical-signal LMS/GCC-PHAT comparison and interpretation limits.
 - [`GEOMETRY.md`](GEOMETRY.md) documents reference microphones and mirror
   ambiguity.
 - [`SIMULATION_ASSUMPTIONS.md`](SIMULATION_ASSUMPTIONS.md) records the

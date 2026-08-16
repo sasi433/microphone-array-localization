@@ -64,6 +64,14 @@ the selected band. Its R-squared and residual diagnostics reveal but do not
 repair a poor model fit. Phase wrapping, narrowband excitation, noise,
 spectral notches, and multi-path transfer functions can bias the result.
 
+GCC-PHAT discards cross-spectrum magnitude information and can emphasize
+unreliable phase in low-energy bins. Finite windows, narrowband or periodic
+signals, additive noise, and similar correlation peaks can bias or make the
+estimate ambiguous. Geometry-derived lag limits reject physically impossible
+peaks but do not resolve corrupted or uninformative data. Three-point
+quadratic peak interpolation is a local numerical approximation rather than
+a general sub-sample accuracy guarantee.
+
 ## Optimization and reported accuracy
 
 `lsqnonlin` is local and depends on the initial guess, bounds, geometry, and
@@ -72,10 +80,11 @@ was uniquely or globally recovered. V0.1 reports solver state, residual norm,
 and localization error for known simulated coordinates; it does not provide
 uncertainty intervals or guarantees for unknown real sources.
 
-The selected example is one deterministic, well-conditioned clean scene.
-Its millimetre-scale result is not a general performance claim. Repeated SNR
-experiments, modern GCC-PHAT comparison, reverberant data, and real hardware
-are outside V0.1.
+The selected V0.1 example is one deterministic, well-conditioned clean scene.
+Its millimetre-scale result is not a general performance claim. Broader Monte
+Carlo studies, reverberant data, and real hardware evaluation remain outside
+the current implemented scope. The post-V0.1 GCC-PHAT comparison uses the
+same synthetic synchronized direct-path assumptions.
 
 ## Intended interpretation
 
