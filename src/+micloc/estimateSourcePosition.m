@@ -15,8 +15,8 @@ function [estimatedPositionMeters, diagnostics] = estimateSourcePosition( ...
 %   solverDisplay.
 %
 %   [POSITION, DIAGNOSTICS] preserves the solver exit flag, status message,
-%   iterations, function evaluations, residual norm, first-order
-%   optimality, bounds, and geometry ambiguity information. A
+%   iterations, function evaluations, termination reason, residual
+%   statistics, first-order optimality, bounds, and geometry ambiguity. A
 %   non-convergent solver result is returned with solverSucceeded=false;
 %   it is not silently converted into success.
 
@@ -28,6 +28,8 @@ microphoneCount = size(microphonePositionsMeters, 1);
 validateattributes(referenceMicrophoneIndex, {'numeric'}, ...
     {'real', 'scalar', 'finite', 'integer', '>=', 1, '<=', microphoneCount}, ...
     mfilename, 'referenceMicrophoneIndex');
+validateMeasuredTDOAs(measuredTDOAsSeconds, microphoneCount, ...
+    referenceMicrophoneIndex);
 validateLocalizationSettings(localizationSettings);
 
 initialGuessMeters = localizationSettings.initialGuessMeters;
@@ -73,7 +75,13 @@ diagnostics.solverSucceeded = exitFlag > 0;
 diagnostics.iterationCount = getOutputField(solverOutput, 'iterations', NaN);
 diagnostics.functionEvaluationCount = getOutputField( ...
     solverOutput, 'funcCount', NaN);
+diagnostics.terminationReason = classifyTermination( ...
+    exitFlag, diagnostics.iterationCount, ...
+    diagnostics.functionEvaluationCount, localizationSettings);
 diagnostics.residualNormSeconds = norm(residualVectorSeconds);
+diagnostics.maximumAbsoluteResidualSeconds = ...
+    max(abs(residualVectorSeconds));
+diagnostics.residualCount = numel(residualVectorSeconds);
 diagnostics.residualSumOfSquaresSecondsSquared = residualSumOfSquares;
 diagnostics.residualVectorSeconds = residualVectorSeconds;
 diagnostics.firstOrderOptimality = getOutputField( ...
@@ -89,6 +97,22 @@ diagnostics.halfPlaneConstraintApplied = halfPlaneConstraintApplied;
 diagnostics.mirrorAmbiguityRemains = ...
     isLinearGeometry && ~halfPlaneConstraintApplied;
 diagnostics.rawSolverOutput = solverOutput;
+end
+
+function validateMeasuredTDOAs(tdoasSeconds, microphoneCount, referenceIndex)
+isValidVector = isnumeric(tdoasSeconds) && isreal(tdoasSeconds) ...
+    && isvector(tdoasSeconds) && numel(tdoasSeconds) == microphoneCount ...
+    && all(isfinite(tdoasSeconds));
+if ~isValidVector
+    error('micloc:estimateSourcePosition:InvalidMeasuredTDOAs', ...
+        ['Measured TDOAs must be a finite real vector with one value ' ...
+        'per microphone.']);
+end
+
+if tdoasSeconds(referenceIndex) ~= 0
+    error('micloc:estimateSourcePosition:NonzeroReferenceTDOA', ...
+        'The measured TDOA at the reference microphone must be zero.');
+end
 end
 
 function validateLocalizationSettings(settings)
@@ -186,5 +210,25 @@ if isfield(structure, fieldName)
     value = structure.(fieldName);
 else
     value = defaultValue;
+end
+end
+
+function reason = classifyTermination(exitFlag, iterationCount, ...
+        functionEvaluationCount, settings)
+if exitFlag > 0
+    reason = "converged";
+elseif exitFlag == 0 ...
+        && functionEvaluationCount >= settings.maxFunctionEvaluations
+    reason = "function-evaluation-limit";
+elseif exitFlag == 0 && iterationCount >= settings.maxIterations
+    reason = "iteration-limit";
+elseif exitFlag == 0
+    reason = "solver-limit";
+elseif exitFlag == -1
+    reason = "stopped-by-output-function";
+elseif exitFlag == -2
+    reason = "no-feasible-point";
+else
+    reason = "solver-failure";
 end
 end

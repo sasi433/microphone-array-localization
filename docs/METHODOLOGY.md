@@ -117,9 +117,11 @@ r_i(p) = predictedTDOA_i(p) - measuredTDOA_i.
 MATLAB's bounded `lsqnonlin` minimizes the residual vector. Configuration
 provides the initial guess, coordinate bounds, iteration and evaluation
 limits, and numerical tolerances. The result preserves exit flag, message,
-iterations, evaluations, residual norm, first-order optimality, geometry
-rank, and mirror-ambiguity diagnostics. Non-convergence is never silently
-reported as success.
+iterations, evaluations, a normalized termination reason, residual norm,
+maximum absolute residual, first-order optimality, geometry rank, and
+mirror-ambiguity diagnostics. Invalid measured-TDOA vectors are rejected
+with identified errors. Non-convergence is never silently reported as
+success.
 
 ## Determinism and validation
 

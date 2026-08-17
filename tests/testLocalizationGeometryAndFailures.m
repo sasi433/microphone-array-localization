@@ -118,6 +118,8 @@ metrics = micloc.calculateLocalizationMetrics( ...
 
 verifyFalse(testCase, diagnostics.solverSucceeded);
 verifyLessThanOrEqual(testCase, diagnostics.exitFlag, 0);
+verifyEqual(testCase, diagnostics.terminationReason, ...
+    "function-evaluation-limit");
 verifyNotEmpty(testCase, diagnostics.solverMessage);
 verifyGreaterThanOrEqual(testCase, diagnostics.functionEvaluationCount, 1);
 verifyFalse(testCase, metrics.solverSucceeded);
@@ -136,6 +138,7 @@ settings.maxFunctionEvaluations = 5000;
 
 verifyFalse(testCase, diagnostics.solverSucceeded);
 verifyEqual(testCase, diagnostics.exitFlag, 0);
+verifyEqual(testCase, diagnostics.terminationReason, "iteration-limit");
 verifyGreaterThan(testCase, diagnostics.functionEvaluationCount, 1);
 verifyNotEmpty(testCase, diagnostics.solverMessage);
 end
@@ -155,6 +158,25 @@ settings.initialGuessMeters = [6, 1];
 verifyError(testCase, @() micloc.estimateSourcePosition( ...
     tdoasSeconds, microphonesMeters, 343, 1, settings), ...
     'micloc:estimateSourcePosition:InitialGuessOutsideBounds');
+end
+
+function testRejectsInvalidMeasuredTDOAsWithIdentifiedErrors(testCase)
+[microphonesMeters, ~, tdoasSeconds] = linearScene();
+settings = createLinearSettings();
+
+verifyError(testCase, @() micloc.estimateSourcePosition( ...
+    tdoasSeconds(1:end-1), microphonesMeters, 343, 1, settings), ...
+    'micloc:estimateSourcePosition:InvalidMeasuredTDOAs');
+invalidTDOAsSeconds = tdoasSeconds;
+invalidTDOAsSeconds(end) = NaN;
+verifyError(testCase, @() micloc.estimateSourcePosition( ...
+    invalidTDOAsSeconds, microphonesMeters, 343, 1, settings), ...
+    'micloc:estimateSourcePosition:InvalidMeasuredTDOAs');
+invalidTDOAsSeconds = tdoasSeconds;
+invalidTDOAsSeconds(1) = eps;
+verifyError(testCase, @() micloc.estimateSourcePosition( ...
+    invalidTDOAsSeconds, microphonesMeters, 343, 1, settings), ...
+    'micloc:estimateSourcePosition:NonzeroReferenceTDOA');
 end
 
 function [microphonesMeters, sourceMeters, tdoasSeconds] = linearScene

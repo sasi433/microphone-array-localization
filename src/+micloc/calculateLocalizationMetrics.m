@@ -8,8 +8,8 @@ function metrics = calculateLocalizationMetrics(actualPositionMeters, ...
 %
 %   DIAGNOSTICS is the scalar structure returned by
 %   MICLOC.ESTIMATESOURCEPOSITION. Solver success, exit flag, message, and
-%   residual norm are copied into METRICS so that accuracy is never
-%   reported without the corresponding solver state.
+%   termination reason and residual statistics are copied into METRICS so
+%   that accuracy is never reported without the corresponding solver state.
 
 validatePosition(actualPositionMeters, 'actualPositionMeters');
 validatePosition(estimatedPositionMeters, 'estimatedPositionMeters');
@@ -25,7 +25,10 @@ metrics.localizationErrorMeters = norm(coordinateErrorMeters);
 metrics.solverSucceeded = solverDiagnostics.solverSucceeded;
 metrics.exitFlag = solverDiagnostics.exitFlag;
 metrics.solverMessage = solverDiagnostics.solverMessage;
+metrics.terminationReason = solverDiagnostics.terminationReason;
 metrics.residualNormSeconds = solverDiagnostics.residualNormSeconds;
+metrics.maximumAbsoluteResidualSeconds = ...
+    solverDiagnostics.maximumAbsoluteResidualSeconds;
 end
 
 function validatePosition(positionMeters, argumentName)
@@ -40,7 +43,8 @@ if ~(isstruct(diagnostics) && isscalar(diagnostics))
 end
 
 requiredFields = {'solverSucceeded', 'exitFlag', 'solverMessage', ...
-    'residualNormSeconds'};
+    'terminationReason', 'residualNormSeconds', ...
+    'maximumAbsoluteResidualSeconds'};
 missingFields = requiredFields(~isfield(diagnostics, requiredFields));
 if ~isempty(missingFields)
     error('micloc:calculateLocalizationMetrics:MissingDiagnostic', ...
@@ -63,4 +67,13 @@ end
 validateattributes(diagnostics.residualNormSeconds, {'numeric'}, ...
     {'real', 'scalar', 'finite', 'nonnegative'}, mfilename, ...
     'solverDiagnostics.residualNormSeconds');
+if ~(isstring(diagnostics.terminationReason) ...
+        && isscalar(diagnostics.terminationReason) ...
+        && strlength(diagnostics.terminationReason) > 0)
+    error('micloc:calculateLocalizationMetrics:InvalidTerminationReason', ...
+        'The solver termination reason must be a nonempty string scalar.');
+end
+validateattributes(diagnostics.maximumAbsoluteResidualSeconds, {'numeric'}, ...
+    {'real', 'scalar', 'finite', 'nonnegative'}, mfilename, ...
+    'solverDiagnostics.maximumAbsoluteResidualSeconds');
 end
