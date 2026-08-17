@@ -61,6 +61,29 @@ verifyFalse(testCase, diagnostics.isLinearGeometry);
 verifyFalse(testCase, diagnostics.mirrorAmbiguityRemains);
 end
 
+function testMinimumCollinearArrayReportsMirrorAmbiguity(testCase)
+microphonesMeters = [-0.5, 0; 0, 0; 0.5, 0];
+sourceMeters = [0.25, 0.8];
+referenceIndex = 2;
+tdoasSeconds = micloc.predictTDOAs( ...
+    sourceMeters, microphonesMeters, 343, referenceIndex);
+settings = createLinearSettings();
+settings.initialGuessMeters = [0.2, 0.5];
+settings.lowerBoundsMeters = [-Inf, -Inf];
+settings.upperBoundsMeters = [Inf, Inf];
+
+[estimatedMeters, diagnostics] = micloc.estimateSourcePosition( ...
+    tdoasSeconds, microphonesMeters, 343, referenceIndex, settings);
+
+verifyTrue(testCase, diagnostics.solverSucceeded, ...
+    diagnostics.solverMessage);
+verifyEqual(testCase, estimatedMeters, sourceMeters, 'AbsTol', 1e-7);
+verifyEqual(testCase, diagnostics.geometryRank, 1);
+verifyTrue(testCase, diagnostics.isLinearGeometry);
+verifyFalse(testCase, diagnostics.halfPlaneConstraintApplied);
+verifyTrue(testCase, diagnostics.mirrorAmbiguityRemains);
+end
+
 function testRejectsDuplicateAndInsufficientGeometry(testCase)
 validTDOAsSeconds = zeros(3, 1);
 settings = createLinearSettings();
@@ -71,6 +94,14 @@ verifyError(testCase, @() micloc.estimateSourcePosition( ...
 verifyError(testCase, @() micloc.estimateSourcePosition( ...
     zeros(2, 1), [0, 0; 1, 0], 343, 1, settings), ...
     'micloc:validateMicrophonePositions:TooFewMicrophones');
+end
+
+function testRejectsFullyCollapsedGeometry(testCase)
+settings = createLinearSettings();
+
+verifyError(testCase, @() micloc.estimateSourcePosition( ...
+    zeros(3, 1), zeros(3, 2), 343, 1, settings), ...
+    'micloc:validateMicrophonePositions:DuplicatePositions');
 end
 
 function testReportsFunctionEvaluationLimitAsFailure(testCase)
@@ -91,6 +122,39 @@ verifyNotEmpty(testCase, diagnostics.solverMessage);
 verifyGreaterThanOrEqual(testCase, diagnostics.functionEvaluationCount, 1);
 verifyFalse(testCase, metrics.solverSucceeded);
 verifyEqual(testCase, metrics.exitFlag, diagnostics.exitFlag);
+end
+
+function testReportsIterationLimitAsFailure(testCase)
+[microphonesMeters, ~, tdoasSeconds] = linearScene();
+settings = createLinearSettings();
+settings.initialGuessMeters = [4, 4];
+settings.maxIterations = 1;
+settings.maxFunctionEvaluations = 5000;
+
+[~, diagnostics] = micloc.estimateSourcePosition( ...
+    tdoasSeconds, microphonesMeters, 343, 1, settings);
+
+verifyFalse(testCase, diagnostics.solverSucceeded);
+verifyEqual(testCase, diagnostics.exitFlag, 0);
+verifyGreaterThan(testCase, diagnostics.functionEvaluationCount, 1);
+verifyNotEmpty(testCase, diagnostics.solverMessage);
+end
+
+function testRejectsInvalidSolverDomainBeforeOptimization(testCase)
+[microphonesMeters, ~, tdoasSeconds] = linearScene();
+settings = createLinearSettings();
+settings.lowerBoundsMeters = [1, 0];
+settings.upperBoundsMeters = [0, 5];
+
+verifyError(testCase, @() micloc.estimateSourcePosition( ...
+    tdoasSeconds, microphonesMeters, 343, 1, settings), ...
+    'micloc:estimateSourcePosition:InvalidBounds');
+
+settings = createLinearSettings();
+settings.initialGuessMeters = [6, 1];
+verifyError(testCase, @() micloc.estimateSourcePosition( ...
+    tdoasSeconds, microphonesMeters, 343, 1, settings), ...
+    'micloc:estimateSourcePosition:InitialGuessOutsideBounds');
 end
 
 function [microphonesMeters, sourceMeters, tdoasSeconds] = linearScene
