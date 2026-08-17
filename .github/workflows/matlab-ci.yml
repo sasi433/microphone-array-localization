@@ -32,7 +32,7 @@ jobs:
           products: Signal_Processing_Toolbox Optimization_Toolbox
           cache: true
 
-      - name: Verify products, analyze code, and run test suite
+      - name: Verify products and analyze code
         uses: matlab-actions/run-command@v3
         with:
           command: >-
@@ -41,4 +41,22 @@ jobs:
             assert(exist('lsqnonlin', 'file') == 2,
             'Optimization Toolbox function lsqnonlin is unavailable');
             run_code_analysis;
-            run_tests;
+
+      - name: Run test suite and generate reports
+        uses: matlab-actions/run-tests@v3
+        with:
+          source-folder: src
+          select-by-folder: tests
+          test-results-junit: test-results/results.xml
+          code-coverage-cobertura: coverage/coverage.xml
+
+      - name: Publish test and coverage artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: matlab-test-and-coverage
+          path: |
+            test-results/results.xml
+            coverage/coverage.xml
+          if-no-files-found: error
+          retention-days: 14

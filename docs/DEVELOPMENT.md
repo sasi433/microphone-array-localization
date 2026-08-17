@@ -89,6 +89,17 @@ matlab -batch "run_code_analysis"
 The command exits with an error if Code Analyzer reports any finding. The
 same check runs in MATLAB CI before the complete test suite.
 
+## CI test artifacts
+
+MATLAB CI runs the tests below `tests/` with `src/` on the MATLAB path. Each
+completed workflow publishes a `matlab-test-and-coverage` artifact containing
+JUnit test results and Cobertura source-coverage XML. The artifact is retained
+for 14 days and is uploaded on test failures when MATLAB produced the reports.
+
+Coverage is diagnostic evidence, not the release criterion. Mathematical
+correctness remains enforced by focused regression tests and the complete
+MATLAB suite.
+
 ## VS Code usage
 
 Install and enable the official **MATLAB** extension published by MathWorks. This repository does not require a third-party MATLAB extension. After opening the repository:
