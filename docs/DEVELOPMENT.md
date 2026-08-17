@@ -77,6 +77,18 @@ matlab -batch "setupProject; results = runtests('tests/testProjectSetup.m', Inva
 
 A test passes only when MATLAB exits successfully, discovers the expected tests, and reports that all required results passed.
 
+## Code analysis
+
+Run MATLAB Code Analyzer across the repository's root functions and all
+MATLAB files below `src/`, `tests/`, and `examples/` with:
+
+```powershell
+matlab -batch "run_code_analysis"
+```
+
+The command exits with an error if Code Analyzer reports any finding. The
+same check runs in MATLAB CI before the complete test suite.
+
 ## VS Code usage
 
 Install and enable the official **MATLAB** extension published by MathWorks. This repository does not require a third-party MATLAB extension. After opening the repository:

@@ -51,7 +51,7 @@
             "command": "C:\\Program Files\\MATLAB\\R2026a\\bin\\matlab.exe",
             "args": [
                 "-batch",
-                "setupProject; files = [dir(fullfile('src', '**', '*.m')); dir(fullfile('tests', '**', '*.m')); dir(fullfile('examples', '**', '*.m')); dir('*.m')]; issueCount = 0; for fileIndex = 1:numel(files), fileName = fullfile(files(fileIndex).folder, files(fileIndex).name); issues = checkcode(fileName, '-id'); issueCount = issueCount + numel(issues); if ~isempty(issues), fprintf('Code Analyzer findings for %s:\\n', fileName); disp(struct2table(issues)); end, end; assert(issueCount == 0, 'MATLAB Code Analyzer reported %d finding(s)', issueCount); fprintf('MATLAB Code Analyzer passed for %d file(s).\\n', numel(files));"
+                "run_code_analysis"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

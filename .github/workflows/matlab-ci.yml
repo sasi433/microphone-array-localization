@@ -32,7 +32,7 @@ jobs:
           products: Signal_Processing_Toolbox Optimization_Toolbox
           cache: true
 
-      - name: Verify products and run test suite
+      - name: Verify products, analyze code, and run test suite
         uses: matlab-actions/run-command@v3
         with:
           command: >-
@@ -40,4 +40,5 @@ jobs:
             'Signal Processing Toolbox function phasez is unavailable');
             assert(exist('lsqnonlin', 'file') == 2,
             'Optimization Toolbox function lsqnonlin is unavailable');
+            run_code_analysis;
             run_tests;
