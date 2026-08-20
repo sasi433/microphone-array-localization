@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "Microphone Array Localization: A Clean-Room MATLAB Simulation"
+abstract: >-
+  A deterministic MATLAB simulation for two-dimensional localization of one
+  stationary synthetic source with configurable microphone geometry,
+  independently implemented LMS and GCC-PHAT time-delay estimators, bounded
+  nonlinear coordinate estimation, repeated SNR experiments, and explicit
+  diagnostics and limitations.
+authors:
+  - family-names: "Maddala"
+    given-names: "Sasanka"
+version: "1.0.0"
+date-released: "2026-08-20"
+type: software
+license: MIT
+repository-code: "https://github.com/sasi433/microphone-array-localization"
+url: "https://github.com/sasi433/microphone-array-localization/releases/tag/v1.0.0"
+keywords:
+  - "microphone array"
+  - "sound source localization"
+  - "time-difference of arrival"
+  - "adaptive filtering"
+  - "LMS"
+  - "GCC-PHAT"
+  - "MATLAB"
+  - "signal processing"
