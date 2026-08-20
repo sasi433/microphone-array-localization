@@ -1,8 +1,8 @@
-# V0.1 methodology
+# V1.0 methodology
 
 ## Objective and scope
 
-V0.1 estimates the two-dimensional position of one stationary synthetic
+V1.0 estimates the two-dimensional position of one stationary synthetic
 sound source from signals received by synchronized microphones. The model is
 direct-path and free-field: propagation is represented by distance-dependent
 arrival delay, with optional additive Gaussian noise. The implementation is
@@ -20,15 +20,15 @@ deterministic stages are:
 4. Apply integer or group-delay-compensated windowed-sinc fractional delays.
 5. Add independently seeded Gaussian noise at a measured per-channel SNR
    when enabled.
-6. Align every non-reference channel with the reference by a causal bulk
-   delay.
-7. Identify each pairwise FIR response with the independently implemented
-   standard LMS recursion.
-8. Estimate signed TDOA from the learned FIR's unwrapped phase slope.
-9. Convert sample delays to seconds and solve the bounded nonlinear
+6. Apply the configured TDOA estimator to every non-reference/reference
+   pair. LMS modes use causal alignment and an independently implemented FIR
+   recursion; GCC-PHAT uses a geometry-bounded normalized correlation.
+7. Estimate signed TDOAs from the LMS FIR peak, the FIR's unwrapped phase
+   slope, or a quadratically interpolated GCC-PHAT peak.
+8. Convert sample delays to seconds and solve the bounded nonlinear
    localization residuals with `lsqnonlin`.
-10. Report coordinates, TDOA errors, Euclidean localization error, LMS
-    diagnostics, and solver diagnostics.
+9. Report coordinates, TDOA errors, Euclidean localization error,
+   method-specific diagnostics, and solver diagnostics.
 
 Each stage is an ordinary MATLAB function under `src/+micloc/` and is tested
 independently before end-to-end integration.
@@ -63,7 +63,7 @@ attenuation or room impulse responses.
 ## LMS system identification
 
 For causal rolling input vector `x_n`, desired sample `d[n]`, coefficients
-`w_n`, and step size `mu`, V0.1 uses
+`w_n`, and step size `mu`, the LMS estimators use
 
 ```text
 y[n] = w_n^T x_n
@@ -101,8 +101,24 @@ group delay and the causal bulk delay are then subtracted explicitly.
 
 Diagnostics retain selected bins, residuals, phase-fit RMSE, R-squared, and
 a quality label. The impulse-response peak estimator is also available as
-an independently tested one-sample-resolution comparison, but the V0.1
-pipeline uses phase slope for fractional estimates.
+an independently tested one-sample-resolution alternative.
+
+## GCC-PHAT delay estimation
+
+For a comparison/reference signal pair, V1.0 calculates the cross-spectrum,
+normalizes it by magnitude with epsilon protection, and transforms it to a
+signed correlation-lag axis. The search is limited by the physical bound
+
+```text
+absolute TDOA <= microphone separation / speed of sound.
+```
+
+The largest in-bound peak supplies the integer lag, and a local three-point
+quadratic interpolation provides a fractional offset when the peak and its
+neighbours are suitable. Diagnostics retain the physical and discrete lag
+bounds, peak information, interpolation state, and sign convention. The
+implementation uses FFT operations and does not call a toolbox GCC-PHAT
+implementation.
 
 ## Coordinate estimation
 
@@ -123,6 +139,21 @@ mirror-ambiguity diagnostics. Invalid measured-TDOA vectors are rejected
 with identified errors. Non-convergence is never silently reported as
 success.
 
+## Repeated experiments and fair comparison
+
+Monte Carlo trials derive deterministic per-trial seeds from the documented
+base configuration. SNR sweeps retain successful and failed solver states
+and summarize only valid localization errors while reporting failure counts
+separately. Mean, median, standard deviation, extrema, and interpolated 90th
+percentile are descriptive statistics for the simulated trials, not general
+real-world accuracy guarantees.
+
+Estimator comparisons generate the source and microphone signals once, then
+run every requested method on those identical inputs. This isolates method
+differences from random source or noise differences. See
+[`ARCHITECTURE.md`](ARCHITECTURE.md) for component boundaries and
+[`ESTIMATOR_COMPARISON.md`](ESTIMATOR_COMPARISON.md) for interpretation.
+
 ## Determinism and validation
 
 Source and noise generation use local `RandStream` objects, avoiding changes
@@ -132,7 +163,7 @@ signed delay estimation, exact-TDOA localization, clean/noisy end-to-end
 localization, invalid inputs, ambiguity, and solver failure reporting.
 
 The verified local command is `matlab -batch "run_tests"`. GitHub Actions
-runs the same suite with MATLAB R2026a. V0.1 requires MATLAB, Signal
+runs the same suite with MATLAB R2026a. V1.0 requires MATLAB, Signal
 Processing Toolbox (`freqz`), and Optimization Toolbox (`lsqnonlin`).
 
 ## Clean-room boundary
