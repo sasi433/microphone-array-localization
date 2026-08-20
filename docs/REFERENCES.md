@@ -1,14 +1,14 @@
 # References
 
-These publications and product documents support mathematical concepts and
-tool behavior. Citation does not imply that source code was copied from a
-publication. All repository implementation is newly written under the
-clean-room rules in [`PROVENANCE.md`](PROVENANCE.md).
+These publications and official product documents support mathematical
+concepts and MATLAB API behaviour. They are references, not source-code
+provenance: repository algorithms and tests were written independently under
+the clean-room policy in [`PROVENANCE.md`](PROVENANCE.md).
 
 ## Adaptive filtering
 
-1. B. Widrow and M. E. Hoff, Jr., “Adaptive Switching Circuits,” *IRE
-   WESCON Convention Record*, part 4, pp. 96–104, August 1960.
+1. B. Widrow and M. E. Hoff, Jr., "Adaptive Switching Circuits," *IRE
+   WESCON Convention Record*, part 4, pp. 96-104, August 1960.
    [Author-hosted paper](https://isl.stanford.edu/~widrow/papers/c1960adaptiveswitching.pdf).
 2. A. H. Sayed, *Adaptive Filters*. Wiley-IEEE Press, 2008.
    [DOI: 10.1002/9780470374122](https://doi.org/10.1002/9780470374122).
@@ -16,9 +16,9 @@ clean-room rules in [`PROVENANCE.md`](PROVENANCE.md).
 
 ## Fractional delay and array processing
 
-4. T. I. Laakso, V. Välimäki, M. Karjalainen, and U. K. Laine, “Splitting
-   the Unit Delay,” *IEEE Signal Processing Magazine*, vol. 13, no. 1,
-   pp. 30–60, January 1996.
+4. T. I. Laakso, V. Valimaki, M. Karjalainen, and U. K. Laine, "Splitting
+   the Unit Delay," *IEEE Signal Processing Magazine*, vol. 13, no. 1,
+   pp. 30-60, January 1996.
    [DOI: 10.1109/79.482137](https://doi.org/10.1109/79.482137).
 5. M. Brandstein and D. Ward, eds., *Microphone Arrays: Signal Processing
    Techniques and Applications*. Springer, 2001.
@@ -37,12 +37,36 @@ clean-room rules in [`PROVENANCE.md`](PROVENANCE.md).
    Optimization Toolbox documentation.
 8. MathWorks, [`freqz`](https://www.mathworks.com/help/signal/ref/freqz.html),
    Signal Processing Toolbox documentation.
-9. MathWorks, [`RandStream`](https://www.mathworks.com/help/matlab/ref/randstream.html),
+9. MathWorks, [`fft`](https://www.mathworks.com/help/matlab/ref/fft.html),
    MATLAB documentation.
-10. MathWorks, [MATLAB unit testing framework](https://www.mathworks.com/help/matlab/matlab-unit-test-framework.html).
+10. MathWorks, [`ifft`](https://www.mathworks.com/help/matlab/ref/ifft.html),
+    MATLAB documentation.
+11. MathWorks, [`RandStream`](https://www.mathworks.com/help/matlab/ref/randstream.html),
+    MATLAB documentation.
+12. MathWorks, [MATLAB unit testing framework](https://www.mathworks.com/help/matlab/matlab-unit-test-framework.html).
+
+## How the references are used
+
+| Repository area | Conceptual or API references |
+| --- | --- |
+| Standard LMS update and convergence context | References 1-3 |
+| Windowed-sinc fractional-delay design | Reference 4 |
+| Microphone-array and TDOA context | Reference 5 |
+| Generalized cross-correlation and PHAT weighting | Reference 6 |
+| Vector-valued bounded nonlinear least squares | Reference 7 |
+| FIR frequency response and phase processing | Reference 8 |
+| FFT-based GCC-PHAT implementation | References 9-10 |
+| Deterministic local random streams | Reference 11 |
+| Executable verification | Reference 12 |
+
+The mapping identifies concepts and documented interfaces. It does not claim
+that publication or MathWorks source code was available, copied, translated,
+or adapted.
 
 ## Project-specific design records
 
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) defines component boundaries and data
+  flow.
 - [`LMS_DESIGN.md`](LMS_DESIGN.md) defines coefficient ordering and update
   convention.
 - [`LMS_DELAY_ESTIMATION.md`](LMS_DELAY_ESTIMATION.md) defines signed-delay,
@@ -52,13 +76,13 @@ clean-room rules in [`PROVENANCE.md`](PROVENANCE.md).
 - [`GCC_PHAT_DESIGN.md`](GCC_PHAT_DESIGN.md) defines the GCC-PHAT spectrum,
   sign, lag-bound, epsilon, and interpolation conventions.
 - [`ESTIMATOR_COMPARISON.md`](ESTIMATOR_COMPARISON.md) defines the
-  identical-signal LMS/GCC-PHAT comparison and interpretation limits.
+  identical-signal comparison and interpretation limits.
 - [`GEOMETRY.md`](GEOMETRY.md) documents reference microphones and mirror
   ambiguity.
 - [`SIMULATION_ASSUMPTIONS.md`](SIMULATION_ASSUMPTIONS.md) records the
   direct-path model.
 
 The uncertain historical helper source attributed to M. H. Hayes is not
-distributed or used as an implementation specification. Hayes is mentioned
-in provenance to explain the exclusion, not cited as code ownership for the
-new implementation.
+distributed, cited as ownership for this implementation, or used as an
+implementation specification. Hayes is mentioned in provenance only to
+explain why those historical files are excluded.
