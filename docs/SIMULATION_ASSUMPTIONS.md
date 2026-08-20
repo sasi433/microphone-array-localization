@@ -1,8 +1,8 @@
-# Direct-Path Simulation Assumptions
+# V1.0 direct-path simulation assumptions
 
 ## Intended model
 
-V0.1 is a deterministic, single-source, two-dimensional signal-processing simulation. It creates a synthetic source waveform, calculates ideal geometric propagation delays to synchronized microphones, applies those delays, and optionally adds independent Gaussian noise at a measured target SNR.
+V1.0 is a deterministic, single-source, two-dimensional signal-processing simulation. It creates a synthetic source waveform, calculates ideal geometric propagation delays to synchronized microphones, applies those delays, and optionally adds independent Gaussian noise at a measured target SNR.
 
 The current model is suitable for testing the mathematical stages of a clean-room academic localization pipeline. It is not a complete acoustic environment, a real-time system, or a production localization product.
 
@@ -10,7 +10,7 @@ The current model is suitable for testing the mathematical stages of a clean-roo
 
 Each microphone receives one delayed copy of the source. Propagation time is calculated as Euclidean source-to-microphone distance divided by a known, constant speed of sound. Integer-delay mode quantizes propagation to whole samples and applies causal leading-zero padding without discarding input samples.
 
-Microphone channels share a common output length. Shorter-delay channels receive trailing zeros so that every matrix row represents the same simulation time index. Fractional-delay alignment and its filter assumptions are documented separately when that implementation is introduced.
+Microphone channels share a common output length. Shorter-delay channels receive trailing zeros so that every matrix row represents the same simulation time index. Fractional-delay alignment and its finite-filter assumptions are documented in [Fractional-Delay Design](FRACTIONAL_DELAY_DESIGN.md).
 
 The geometric and TDOA sign conventions are defined in [Array Geometry and Propagation Conventions](GEOMETRY.md).
 
@@ -22,7 +22,7 @@ Positive-infinite SNR means no added noise. A finite SNR is undefined for a zero
 
 ## Explicit exclusions
 
-V0.1 does not model:
+V1.0 does not model:
 
 - Room reflections or multipath propagation
 - Reverberation or frequency-dependent wall absorption
@@ -45,3 +45,7 @@ These effects can materially change delay estimation and localization accuracy. 
 Documented configurations, seeds, MATLAB release, and toolbox versions are part of a reproducible experiment. Deterministic generation ensures that a repeated configuration produces the same synthetic inputs. It does not remove numerical sensitivity, geometry ambiguity, estimator bias, or solver failure.
 
 Generated experiment output normally remains untracked under `results/`. Only deliberately selected results with their exact configuration and seed should be committed for documentation.
+
+Repeated trials and estimator comparisons remain synthetic experiments under
+these same assumptions. Increasing the number of seeds or SNR levels does not
+introduce room, device, calibration, or recording realism.

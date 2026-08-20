@@ -1,8 +1,8 @@
-# V0.1 limitations and non-claims
+# V1.0 limitations, non-claims, and future work
 
 ## Simulation boundary
 
-V0.1 is a deterministic MATLAB study of one stationary synthetic source in
+V1.0 is a deterministic MATLAB study of one stationary synthetic source in
 a two-dimensional, synchronized, direct-path, free-field model. It is not:
 
 - an artificial-intelligence or machine-learning system;
@@ -23,7 +23,7 @@ the single-delay phase model.
 
 ## Synchronization and calibration
 
-All channels share one ideal sample clock. V0.1 does not model clock offset,
+All channels share one ideal sample clock. V1.0 does not model clock offset,
 clock drift, dropped samples, device latency, microphone position error, or
 calibration uncertainty. Real distributed devices require synchronization
 and calibration that this project does not provide.
@@ -31,7 +31,7 @@ and calibration that this project does not provide.
 ## Geometry
 
 A linear array cannot distinguish mirror sources on opposite sides of its
-axis from TDOAs alone. V0.1 exposes this ambiguity and supports a half-plane
+axis from TDOAs alone. V1.0 exposes this ambiguity and supports a half-plane
 constraint; it does not make the geometry informative. Poor aperture,
 distant sources, nearly collinear non-linear layouts, or inaccurate bounds
 can make localization ill-conditioned even when TDOA errors are small.
@@ -76,18 +76,57 @@ a general sub-sample accuracy guarantee.
 
 `lsqnonlin` is local and depends on the initial guess, bounds, geometry, and
 TDOA estimates. A positive exit flag does not prove that the physical source
-was uniquely or globally recovered. V0.1 reports solver state, residual norm,
+was uniquely or globally recovered. V1.0 reports solver state, residual norm,
 and localization error for known simulated coordinates; it does not provide
 uncertainty intervals or guarantees for unknown real sources.
 
 The selected V0.1 example is one deterministic, well-conditioned clean scene.
-Its millimetre-scale result is not a general performance claim. Broader Monte
-Carlo studies, reverberant data, and real hardware evaluation remain outside
-the current implemented scope. The post-V0.1 GCC-PHAT comparison uses the
-same synthetic synchronized direct-path assumptions.
+Its millimetre-scale result is not a general performance claim. V1.0's
+repeated seeded SNR experiments broaden the synthetic evaluation, but they
+still use the same synchronized direct-path assumptions. Reverberant data and
+real hardware evaluation remain outside the implemented scope.
+
+## Experiment limitations
+
+Monte Carlo and SNR summaries describe only the configured synthetic scenes,
+signals, seeds, trial counts, and estimator settings. They are not confidence
+intervals, population estimates, benchmarks against measured data, or
+certification of accuracy. A small trial count can make means, extrema, and
+percentiles unstable. Solver failures are counted explicitly and are not
+silently replaced with finite localization errors.
+
+Comparisons are controlled by providing identical simulated microphone
+signals to each estimator. That removes one source of random variation but
+does not make estimator assumptions equivalent or establish universal method
+rankings. Results can change with bandwidth, duration, sample rate, array
+geometry, source location, SNR, and parameter choices.
+
+## Future work, not V1.0 scope
+
+The following are reasonable research extensions, but none is implemented or
+claimed by this release:
+
+- **Real recordings:** introduce licensed, documented recordings and a
+  repeatable acquisition/evaluation protocol.
+- **Room reverberation:** model or measure room impulse responses, reflections,
+  multipath, and frequency-dependent absorption.
+- **Multiple sources:** add source separation, delay association, and an
+  estimator designed for simultaneous emitters.
+- **Tracking:** add a time-varying state model, frame-level observations, and
+  explicit missed-detection and data-association handling.
+- **Three-dimensional arrays:** extend geometry, observability checks,
+  coordinate solving, plots, and tests to non-coplanar microphone layouts.
+- **Hardware synchronization:** measure and compensate device latency, sample
+  loss, clock offset, and drift.
+- **Calibration:** estimate microphone positions, gains, responses, and sound
+  speed rather than treating them as exactly known.
+
+Each extension changes the mathematical assumptions and validation evidence.
+It should be developed as separately reviewed scope with suitable data
+provenance, tests, and dependency analysis rather than appended to V1.0.
 
 ## Intended interpretation
 
-Use V0.1 to inspect and reproduce a modular academic signal-processing
+Use V1.0 to inspect and reproduce a modular academic signal-processing
 pipeline. Do not extrapolate its clean synthetic results to rooms, devices,
 people, safety decisions, surveillance, or commercial performance.
