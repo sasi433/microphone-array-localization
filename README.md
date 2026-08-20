@@ -1,19 +1,22 @@
 # Microphone Array Localization
 
+[![MATLAB CI](https://github.com/sasi433/microphone-array-localization/actions/workflows/matlab-ci.yml/badge.svg)](https://github.com/sasi433/microphone-array-localization/actions/workflows/matlab-ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/sasi433/microphone-array-localization)](https://github.com/sasi433/microphone-array-localization/releases/latest)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A clean-room MATLAB reconstruction and modernization of an academic
 sound-source localization simulation.
 
-> **Status:** V0.1 is released, and the post-V0.1 estimator-comparison stage
-> is implemented. One stationary synthetic source is localized in a
-> two-dimensional, synchronized, direct-path simulation using selectable
-> LMS peak, LMS phase-slope, or independently implemented GCC-PHAT TDOA
-> estimation.
+> **Status:** V1.0.0 portfolio release. One stationary synthetic source is
+> localized in a two-dimensional, synchronized, direct-path simulation using
+> selectable LMS peak, LMS phase-slope, or independently implemented GCC-PHAT
+> TDOA estimation.
 
 This is a focused reproducible signal-processing project. It is not an AI
 system, production acoustic-localization product, real-time audio system, or
 complete room-acoustics model.
 
-## Selected V0.1 result
+## Selected V1.0 results
 
 The included clean example uses four non-collinear microphones, fractional
 propagation delays, seed `5489`, and no additive noise:
@@ -25,11 +28,16 @@ Localization error: 0.007013 m
 Solver succeeded:   1 (exit flag 3)
 ```
 
-![Actual and estimated source with microphone geometry](docs/assets/v0.1-localization-geometry.png)
+![Mean localization error by estimator and SNR](docs/assets/v1.0-error-vs-snr.png)
 
-This one well-conditioned synthetic result is reproducible, not a general
-accuracy claim. See [selected results](docs/V0.1_RESULTS.md) and
-[limitations](docs/LIMITATIONS.md).
+![Estimator comparison for a representative clean trial](docs/assets/v1.0-estimator-comparison.png)
+
+The figures compare all three estimators on identical deterministic
+microphone signals across five SNR conditions and show one representative
+clean trial. They are reproducible simulation results, not general accuracy
+claims. See the exact configurations, seeds, trial counts, numerical summary,
+and interpretation boundaries in [selected V1.0 results](docs/V1.0_RESULTS.md)
+and [limitations](docs/LIMITATIONS.md).
 
 ## Requirements
 
@@ -71,11 +79,15 @@ The script prints the seed, actual and estimated coordinates, localization
 error in metres, solver status, and true/estimated TDOAs for every
 microphone. It returns `basicLMSResult` in the script workspace.
 
-Regenerate the selected documentation figures with:
+Regenerate the selected V1.0 documentation figures and local CSV summary with:
 
 ```powershell
-matlab -batch "run('examples/generateV01Figures.m')"
+matlab -batch "run('examples/generateV10Figures.m')"
 ```
+
+The CSV is written beneath ignored `results/`; the two intentionally selected
+figures are written beneath `docs/assets/`. The V0.1 baseline generator remains
+available as `examples/generateV01Figures.m`.
 
 ## Run tests
 
@@ -91,8 +103,9 @@ Run one focused file:
 matlab -batch "setupProject; results=runtests('tests/testCleanEndToEndLMSLocalization.m'); assert(all([results.Passed]), 'Focused MATLAB tests failed');"
 ```
 
-GitHub Actions runs the complete suite on pushes to `main` and pull requests
-targeting `main`.
+The current V1.0 suite contains 124 deterministic MATLAB tests. GitHub Actions
+runs the complete suite and code analysis on pushes to `main` and pull requests
+targeting `main`, then publishes JUnit test results and Cobertura coverage.
 
 ## Processing architecture
 
@@ -122,7 +135,8 @@ bounded nonlinear coordinate estimation
 coordinates + TDOA errors + metrics + method/solver diagnostics
 ```
 
-The reusable entry point is:
+See the complete [architecture](docs/ARCHITECTURE.md). The reusable entry point
+is:
 
 ```matlab
 config = micloc.defaultConfig();
@@ -192,7 +206,7 @@ results/       Untracked local experiment output
 
 ## Scope and limitations
 
-V0.1 models one stationary synthetic source, synchronized microphones,
+V1.0 models one stationary synthetic source, synchronized microphones,
 known two-dimensional geometry, known sound speed, and direct propagation.
 It supports configurable linear or arbitrary valid non-collinear arrays,
 integer/fractional delays, optional seeded Gaussian noise, and visible
@@ -214,13 +228,19 @@ This repository does not copy, translate, or reconstruct those files,
 comments, control flow, or implementation structure. Algorithms were
 implemented independently from mathematical definitions and cited sources.
 
-See [provenance](docs/PROVENANCE.md) and
-[references](docs/REFERENCES.md).
+See [provenance](docs/PROVENANCE.md), [references](docs/REFERENCES.md), and the
+repository's citation metadata in [`CITATION.cff`](CITATION.cff).
 
 ## Release and license
 
-The V0.1 historical-revival milestone is published as
+The current portfolio release is
+[`v1.0.0`](https://github.com/sasi433/microphone-array-localization/releases/tag/v1.0.0).
+The earlier historical-revival milestone remains available as
 [`v0.1.0`](https://github.com/sasi433/microphone-array-localization/releases/tag/v0.1.0).
+
+See the [changelog](CHANGELOG.md) for release contents and the
+[release checklist](docs/RELEASE_CHECKLIST.md) for the reproducibility and
+publication gates used for V1.0.0.
 
 Newly written code, tests, documentation, and original assets in this
 repository are licensed under the [MIT License](LICENSE). The license does
